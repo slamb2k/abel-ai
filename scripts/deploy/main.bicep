@@ -90,17 +90,32 @@ param location string = resourceGroup().location
 @description('Region for the webapp frontend')
 param webappLocation string = 'westus2'
 
-@description('Url for the webapp frontend')
+@description('Host or subdomain for the frontend webapp')
 param webappCustomHost string = ''
 
-@description('Url for the webapp frontend')
+@description('Host or subdomain for the backend webapi')
 param webapiCustomHost string = ''
 
-@description('Url for the webapp frontend')
+@description('Host or subdomain for the memory pipeline')
 param memoryPipelineCustomHost string = ''
 
 @description('The name of the DNS zone (e.g. example.com)')
 param dnsZoneName string = ''
+
+@description('The custom fqdn of the frontend webapp (e.g. <custom_host_name>.<dns zone>). Empty if no custom host is specified.')
+var webappCustomUrl = (webappCustomHost != '' && dnsZoneName != '') 
+ ? '${webappCustomHost}.${dnsZoneName}' 
+ : ''
+
+@description('The custom fqdn of the backend webapi (e.g. <custom_host_name>.<dns zone>). Empty if no custom host is specified.')
+var webapiCustomUrl = (webapiCustomHost != '' && dnsZoneName != '') 
+ ? '${webapiCustomHost}.${dnsZoneName}' 
+ : ''
+
+@description('The custom fqdn of the memory pipeline (e.g. <custom_host_name>.<dns zone>). Empty if no custom host is specified.')
+var memoryPipelineCustomUrl = (memoryPipelineCustomHost != '' && dnsZoneName != '') 
+ ? '${memoryPipelineCustomHost}.${dnsZoneName}' 
+ : ''
 
 @description('Hash of the resource group ID')
 var rgIdHash = uniqueString(resourceGroup().id)
@@ -184,7 +199,7 @@ resource appServiceWeb 'Microsoft.Web/sites@2022-09-01' = {
   }
 }
 
-module appServiceWebDnsModule 'modules/verifyAzureDns.bicep' = if (webapiCustomHost != '' && dnsZoneName != '') {
+module appServiceWebDnsModule 'modules/verifyAzureDns.bicep' = if (webapiCustomUrl != '') {
   name: 'app-${deployment().name}-webapi-dns-verify'
   scope: resourceGroup('rg-shared')
   params: {
@@ -196,8 +211,8 @@ module appServiceWebDnsModule 'modules/verifyAzureDns.bicep' = if (webapiCustomH
 }
 
 // hostname bindings must be deployed one by one to prevent Conflict (HTTP 429) errors.
-resource appServiceWebHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = {
-  name: '${webapiCustomHost}.${dnsZoneName}'
+resource appServiceWebHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (webapiCustomUrl != '') {
+  name: webapiCustomUrl
   properties: {
     siteName: appServiceWeb.name
     hostNameType: 'Verified'
@@ -209,11 +224,11 @@ resource appServiceWebHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01'
 
 // certificates must be bound via module/nested template, because each resource can only occur once in every template
 // in this case the hostnameBindings would occur twice otherwise.
-module appServiceWebHostnameCertBindings 'modules/bindCertificateToHostname.bicep' = {
+module appServiceWebHostnameCertBindings 'modules/bindCertificateToHostname.bicep' = if (webapiCustomUrl != '') {
   name: 'app-${deployment().name}-webapi-ssl'
   params: {
     appServicePlanResourceId: appServicePlan.id
-    customHostnames: [ '${webapiCustomHost}.${dnsZoneName}' ]
+    customHostnames: [ webapiCustomUrl ]
     location: location
     webAppName: appServiceWeb.name
   }
@@ -227,7 +242,7 @@ resource appServiceWebConfig 'Microsoft.Web/sites/config@2022-09-01' = {
     alwaysOn: false
     cors: {
       allowedOrigins: webappCustomHost != '' ? [
-        'https://${webappCustomHost}.${dnsZoneName}'
+        'https://${webapiCustomUrl}'
         'http://localhost:3000'
         'https://localhost:3000'
       ] : [
@@ -498,7 +513,7 @@ resource appServiceMemoryPipeline 'Microsoft.Web/sites@2022-09-01' = {
   }
 }
 
-module appServiceMemoryPipelineDnsModule 'modules/verifyAzureDns.bicep' = if (memoryPipelineCustomHost != '' && dnsZoneName != '') {
+module appServiceMemoryPipelineDnsModule 'modules/verifyAzureDns.bicep' = if (memoryPipelineCustomUrl != '') {
   name: 'app-${deployment().name}-memorypipeline-dns-verify'
   scope: resourceGroup('rg-shared')
   params: {
@@ -510,8 +525,8 @@ module appServiceMemoryPipelineDnsModule 'modules/verifyAzureDns.bicep' = if (me
 }
 
 // hostname bindings must be deployed one by one to prevent Conflict (HTTP 429) errors.
-resource appServiceMemoryPipelineHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = {
-  name: '${memoryPipelineCustomHost}.${dnsZoneName}'
+resource appServiceMemoryPipelineHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (memoryPipelineCustomUrl != '') {
+  name: memoryPipelineCustomUrl
   properties: {
     siteName: appServiceMemoryPipeline.name
     hostNameType: 'Verified'
@@ -523,11 +538,11 @@ resource appServiceMemoryPipelineHostname 'Microsoft.web/sites/hostnameBindings@
 
 // certificates must be bound via module/nested template, because each resource can only occur once in every template
 // in this case the hostnameBindings would occur twice otherwise.
-module appServiceMemoryPipelineHostnameCertBindings 'modules/bindCertificateToHostname.bicep' = {
+module appServiceMemoryPipelineHostnameCertBindings 'modules/bindCertificateToHostname.bicep' = if (memoryPipelineCustomUrl != '') {
   name: 'app-${deployment().name}-memorypipeline-ssl'
   params: {
     appServicePlanResourceId: appServicePlan.id
-    customHostnames: [ '${memoryPipelineCustomHost}.${dnsZoneName}' ]
+    customHostnames: [ memoryPipelineCustomUrl ]
     location: location
     webAppName: appServiceMemoryPipeline.name
   }
@@ -1224,7 +1239,7 @@ resource swaFrontend 'Microsoft.Web/staticSites@2022-09-01' = {
   properties: {}
 }
 
-module swaDnsModule 'modules/verifyAzureDns.bicep' = if (webappCustomHost != '' && dnsZoneName != '') {
+module swaDnsModule 'modules/verifyAzureDns.bicep' = if (webappCustomUrl != '') {
   name: 'swa-${deployment().name}-dns-verify'
   scope: resourceGroup('rg-shared')
   params: {
@@ -1234,21 +1249,21 @@ module swaDnsModule 'modules/verifyAzureDns.bicep' = if (webappCustomHost != '' 
   }
 }
 
-module swaCustomDomainModule 'modules/swaCustomDomain.bicep' = {
+module swaCustomDomainModule 'modules/swaCustomDomain.bicep' = if (webappCustomUrl != '') {
   name: 'swa-${deployment().name}-dns'
   scope: resourceGroup()
   params: {
     staticWebAppName: swaFrontend.name
-    customDomainName: '${webappCustomHost}.${dnsZoneName}'
+    customDomainName: webappCustomUrl
   }
   dependsOn: [
     swaDnsModule
   ]
 }
 
-output webappUrl string = swaCustomDomainModule.outputs.customDomain
+output webappUrl string = webappCustomUrl ?? swaFrontend.properties.defaultHostname
 output webappName string = swaFrontend.name
-output webapiUrl string = '${webapiCustomHost}.${dnsZoneName}'
+output webapiUrl string = webapiCustomUrl ?? appServiceWeb.properties.defaultHostName
 output webapiName string = appServiceWeb.name
-output memoryPipelineUrl string = '${memoryPipelineCustomHost}.${dnsZoneName}'
+output memoryPipelineUrl string = memoryPipelineCustomUrl ?? appServiceMemoryPipeline.properties.defaultHostName
 output memoryPipelineName string = appServiceMemoryPipeline.name
