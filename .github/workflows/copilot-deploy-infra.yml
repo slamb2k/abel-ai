@@ -57,10 +57,10 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             echo "Retrieving AI Service Endpoint for general use"
-            AI_SERVICE_ENDPOINT=$(az cognitiveservices account show --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint -o json)
+            AI_SERVICE_ENDPOINT=$(az cognitiveservices account show --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint | jq -r .)
 
             echo "Retrieving AI Service Endpoint for embeddings"
-            AI_EMBED_SERVICE_ENDPOINT=$(az cognitiveservices account show --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint -o json)     
+            AI_EMBED_SERVICE_ENDPOINT=$(az cognitiveservices account show --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint | jq -r .)     
 
             echo "Retrieving AI Service Key for general use"
             AI_SERVICE_KEY=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} | jq -r '.key1')
