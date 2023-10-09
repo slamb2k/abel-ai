@@ -1,0 +1,89 @@
+name: copilot-deploy-app
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+      WEBAPI_ARTIFACT_NAME:
+        required: true
+        type: string
+      MEMORYPIPELINE_ARTIFACT_NAME:
+        required: true
+        type: string
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+    outputs:
+      backend-host:
+        description: "Host on which backend runs"
+        value: https://app-abel-${{jobs.deployment-hash.outputs.hash}}-webapi.azurewebsites.net/
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deployment-hash:
+    environment: ${{inputs.ENVIRONMENT}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.AZURE_CLIENT_ID}}
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+          enable-AzPSSession: false
+      - name: Get resource group hash
+        id: get-hash
+        run: |
+          echo "output hash string = uniqueString(resourceGroup().id)" >> hash.bicep
+          az deployment group create --name "get-resourcegroup-hash" --resource-group {0} --template-file hash.bicep --query properties.outputs.hash.value --output json | jq -r
+          resourceGroupHash=$(az deployment group create --name "get-resourcegroup-hash" --resource-group ${{vars.CC_DEPLOYMENT_GROUP_NAME}} --template-file hash.bicep --query properties.outputs.hash.value --output json | jq -r)
+          echo $resourceGroupHash
+          echo "RESOURCE_GROUP_HASH=$resourceGroupHash" >> $GITHUB_ENV
+          echo "resourceGroupHash=$resourceGroupHash" >> $GITHUB_OUTPUT
+    outputs:
+      hash: ${{ steps.get-hash.outputs.resourceGroupHash }}          
+
+  api-deploy:
+    needs: [deployment-hash]
+    uses: ./.github/workflows/copilot-deploy-webapp.yml
+    with:
+      ARTIFACT_NAME: ${{inputs.WEBAPI_ARTIFACT_NAME}}
+      ENVIRONMENT: ${{inputs.ENVIRONMENT}}
+      WEBAPP_NAME: app-abel-${{needs.deployment-hash.outputs.hash}}-webapi
+      DEPLOYMENT_URL: '${{vars.CC_DEPLOYMENT_BACKEND_HOST}}.${{vars.CC_DEPLOYMENT_DNS_ZONE}}'
+    secrets:
+      AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+      AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+      AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+  memorypipeline-deploy:
+    needs: [deployment-hash]
+    uses: ./.github/workflows/copilot-deploy-webapp.yml
+    with:
+      ARTIFACT_NAME: ${{inputs.MEMORYPIPELINE_ARTIFACT_NAME}}
+      ENVIRONMENT: ${{inputs.ENVIRONMENT}}
+      WEBAPP_NAME: app-abel-${{needs.deployment-hash.outputs.hash}}-memorypipeline
+      DEPLOYMENT_URL: '${{vars.CC_DEPLOYMENT_MEMORYPIPELINE_HOST}}.${{vars.CC_DEPLOYMENT_DNS_ZONE}}'
+    secrets:
+      AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+      AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+      AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+  frontend-deploy:
+    needs: [deployment-hash]
+    uses: ./.github/workflows/copilot-deploy-frontend.yml
+    with:
+      ENVIRONMENT: ${{inputs.ENVIRONMENT}}
+    secrets:
+      AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+      AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+      AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}

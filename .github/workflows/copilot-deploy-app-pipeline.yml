@@ -1,0 +1,56 @@
+name: copilot-deploy-app-pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: 
+      - '**'
+      - '!scripts/deploy/*.bicep'''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+
+  build-webapi:
+    uses: ./.github/workflows/copilot-build-backend.yml
+
+  build-memorypipeline:
+    uses: ./.github/workflows/copilot-build-memorypipeline.yml  
+
+  deploy-integration:
+    needs: [build-webapi, build-memorypipeline]
+    uses: ./.github/workflows/copilot-deploy-app.yml
+    with:
+      ENVIRONMENT: integration
+      WEBAPI_ARTIFACT_NAME: ${{needs.build-webapi.outputs.artifact}}
+      MEMORYPIPELINE_ARTIFACT_NAME: ${{needs.build-memorypipeline.outputs.artifact}}
+    secrets:
+      AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+      AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+      AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+  integration-tests:
+    needs: [deploy-integration]
+    uses: ./.github/workflows/copilot-run-integration-tests.yml
+    with:
+      ENVIRONMENT: integration
+      WEBAPI_URL: ${{needs.deploy-integration.outputs.backend-host}}
+
+  deploy-production:
+    needs: [build-webapi, build-memorypipeline, integration-tests]
+    uses: ./.github/workflows/copilot-deploy-app.yml
+    with:
+      ENVIRONMENT: production
+      WEBAPI_ARTIFACT_NAME: ${{needs.build-webapi.outputs.artifact}}
+      MEMORYPIPELINE_ARTIFACT_NAME: ${{needs.build-memorypipeline.outputs.artifact}}    
+    secrets:
+      AZURE_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+      AZURE_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+      AZURE_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}

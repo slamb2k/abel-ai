@@ -1,0 +1,79 @@
+name: copilot-deploy-infra
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_OPENAI_ENDPOINT:
+        required: true
+      AZURE_OPENAI_EMBED_ENDPOINT:
+        required: true        
+    outputs:
+      DEPLOYMENT_ID:
+        description: "The id of the deployment."
+        value: ${{ jobs.deploy.outputs.deployment-id }}
+
+jobs:
+  deploy:
+    environment: 
+      name: ${{inputs.ENVIRONMENT}}
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dotnet: "6.0", configuration: Release, os: ubuntu-latest }
+    outputs:
+      deployment-id: ${{steps.deployment-id.outputs.deployment_name}}
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Generate Deployment Id
+        id: deployment-id
+        run: echo "deployment_name=${{ vars.CC_DEPLOYMENT_NAME }}-$(date +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.AZURE_CLIENT_ID}}
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+          enable-AzPSSession: false
+
+      - name: deploy-infra
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            echo "Retrieving AI Service Key for general use"
+            az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
+            AI_SERVICE_KEY=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} | jq -r '.key1')
+            echo "::add-mask::$AI_SERVICE_KEY"
+            echo "General-use AI Service Key: $AI_SERVICE_KEY"
+
+            echo "Retrieving AI Service Key for embeddings"
+            az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
+            AI_EMBED_SERVICE_KEY=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} | jq -r '.key1')
+            echo "::add-mask::$AI_EMBED_SERVICE_KEY"
+            echo "Embeddings AI Service Key: $AI_EMBED_SERVICE_KEY"      
+            
+            echo "Deploying infrastructure to ${{vars.CC_DEPLOYMENT_GROUP_NAME}}"
+            scripts/deploy/deploy-azure.sh --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}} --resource-group ${{vars.CC_DEPLOYMENT_GROUP_NAME}} --deployment-name ${{steps.deployment-id.outputs.deployment_name}} --region ${{vars.CC_DEPLOYMENT_REGION}} --web-app-region ${{vars.CC_WEBAPP_DEPLOYMENT_REGION}} --client-id ${{vars.BACKEND_CLIENT_ID}} --tenant-id ${{secrets.AZURE_TENANT_ID}} --instance ${{vars.AZURE_INSTANCE}} --ai-service AzureOpenAI --ai-endpoint ${{secrets.AZURE_OPENAI_ENDPOINT}} --ai-service-key $AI_SERVICE_KEY --app-service-sku ${{vars.WEBAPP_API_SKU}} --ai-embed-endpoint ${{secrets.AZURE_OPENAI_EMBED_ENDPOINT}} --ai-embed-service-key $AI_EMBED_SERVICE_KEY --web-app-custom-domain ${{vars.CC_DEPLOYMENT_FRONTEND_HOST}} --web-api-custom-domain ${{vars.CC_DEPLOYMENT_BACKEND_HOST}} --memory-custom-domain ${{vars.CC_DEPLOYMENT_MEMORYPIPELINE_HOST}} --custom-domain-zone ${{vars.CC_DEPLOYMENT_DNS_ZONE}} --ai-planner-model ${{vars.CC_AI_PLANNER_MODEL}} --ai-embedding-model ${{vars.CC_AI_EMBEDDING_MODEL}} --ai-completion-model ${{vars.CC_AI_COMPLETION_MODEL}} --no-deploy-package --debug-deployment
+
+
+            

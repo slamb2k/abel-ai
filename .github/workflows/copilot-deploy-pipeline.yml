@@ -1,0 +1,19 @@
+name: copilot-deploy-pipeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  infrastructure:
+    name: "Provisioning infrastructure for integration and production environments"
+    uses: ./.github/workflows/copilot-deploy-infra-pipeline.yml
+    with: 
+      force_infra: true
+
+  app:
+    name: "Deploying application to integration and production environments"
+    uses: ./.github/workflows/copilot-deploy-app-pipeline.yml

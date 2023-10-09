@@ -1,0 +1,73 @@
+name: copilot-deploy-webapp
+
+on:
+  workflow_call:
+    inputs:
+      ARTIFACT_NAME:
+        required: true
+        type: string
+      ENVIRONMENT:
+        required: true
+        type: string
+      WEBAPP_NAME:
+        required: true
+        type: string
+      DEPLOYMENT_URL:
+        required: true
+        type: string        
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  webapp:
+    name: Deploying ${{ inputs.WEBAPP_NAME }} on ${{ inputs.ENVIRONMENT }}
+    environment:
+      name: ${{ inputs.ENVIRONMENT }}
+      url: ${{ inputs.DEPLOYMENT_URL }}
+    permissions:
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dotnet: "6.0", configuration: Release, os: ubuntu-latest }
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{inputs.ARTIFACT_NAME}}
+          path: "${{ github.workspace }}/${{inputs.ARTIFACT_NAME}}"
+
+      - name: "Display downloaded content"
+        run: ls -R
+        working-directory: "${{ github.workspace }}/${{inputs.ARTIFACT_NAME}}"
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.AZURE_CLIENT_ID}}
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+          enable-AzPSSession: true
+            
+      - name: Enable Run From Package
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az webapp config appsettings set --name ${{ inputs.WEBAPP_NAME }} --resource-group ${{ vars.CC_DEPLOYMENT_GROUP_NAME }} --settings WEBSITE_RUN_FROM_PACKAGE="1" -o none
+
+      - name: "Deploy"
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.WEBAPP_NAME }}
+          package: "${{ github.workspace }}/${{inputs.ARTIFACT_NAME}}/package.zip"
