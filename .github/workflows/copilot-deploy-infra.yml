@@ -13,10 +13,6 @@ on:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
-      AZURE_OPENAI_ENDPOINT:
-        required: true
-      AZURE_OPENAI_EMBED_ENDPOINT:
-        required: true        
     outputs:
       DEPLOYMENT_ID:
         description: "The id of the deployment."
@@ -60,6 +56,14 @@ jobs:
         with:
           azcliversion: 2.30.0
           inlineScript: |
+            echo "Retrieving AI Service Endpoint for general use"
+            az cognitiveservices account show --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
+            AI_SERVICE_ENDPOINT=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint -o json)
+
+            echo "Retrieving AI Service Endpoint for embeddings"
+            az cognitiveservices account show --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
+            AI_EMBED_SERVICE_ENDPOINT=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} --query properties.endpoint -o json)     
+                      
             echo "Retrieving AI Service Key for general use"
             az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
             AI_SERVICE_KEY=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} | jq -r '.key1')
@@ -67,10 +71,14 @@ jobs:
             echo "Retrieving AI Service Key for embeddings"
             az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}}
             AI_EMBED_SERVICE_KEY=$(az cognitiveservices account keys list --name ${{vars.AZUREOPENAI_EMBED_NAME}} --resource-group ${{vars.AZUREOPENAI_DEPLOYMENT_GROUP_NAME}} | jq -r '.key1')
-            
+
+            echo "::add-mask::$AI_SERVICE_ENDPOINT"
+            echo "::add-mask::$AI_EMBED_SERVICE_ENDPOINT"            
             echo "::add-mask::$AI_SERVICE_KEY"
-            echo "::add-mask::$AI_EMBED_SERVICE_KEY"
-                        
+            echo "::add-mask::$AI_EMBED_SERVICE_KEY"            
+
+            echo "General-use AI Service Endpoint: $AI_SERVICE_ENDPOINT"
+            echo "Embeddings AI Service Endpoint: $AI_EMBED_SERVICE_ENDPOINT"                
             echo "General-use AI Service Key: $AI_SERVICE_KEY"
             echo "Embeddings AI Service Key: $AI_EMBED_SERVICE_KEY"      
             
