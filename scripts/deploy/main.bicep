@@ -211,8 +211,8 @@ module appServiceWebDnsModule 'modules/verifyAzureDns.bicep' = if (webapiCustomU
 }
 
 // hostname bindings must be deployed one by one to prevent Conflict (HTTP 429) errors.
-resource appServiceWebHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (webapiCustomUrl != '') {
-  name: webapiCustomUrl
+resource appServiceWebHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (!empty(webapiCustomUrl)) {
+  name: !empty(webapiCustomUrl) ? webapiCustomUrl : 'api.domain.com'
   properties: {
     siteName: appServiceWeb.name
     hostNameType: 'Verified'
@@ -525,8 +525,8 @@ module appServiceMemoryPipelineDnsModule 'modules/verifyAzureDns.bicep' = if (me
 }
 
 // hostname bindings must be deployed one by one to prevent Conflict (HTTP 429) errors.
-resource appServiceMemoryPipelineHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (memoryPipelineCustomUrl != '') {
-  name: memoryPipelineCustomUrl
+resource appServiceMemoryPipelineHostname 'Microsoft.web/sites/hostnameBindings@2019-08-01' = if (!empty(memoryPipelineCustomUrl)) {
+  name: !empty(memoryPipelineCustomUrl) ? memoryPipelineCustomUrl : 'memorypipeline.domain.com'
   properties: {
     siteName: appServiceMemoryPipeline.name
     hostNameType: 'Verified'
