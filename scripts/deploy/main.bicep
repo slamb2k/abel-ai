@@ -1263,9 +1263,9 @@ module swaCustomDomainModule 'modules/swaCustomDomain.bicep' = if (webappCustomU
   ]
 }
 
-output webappUrl string = webappCustomUrl ?? swaFrontend.properties.defaultHostname
+output webappUrl string = (webappCustomUrl != '') ? webappCustomUrl : swaFrontend.properties.defaultHostname
 output webappName string = swaFrontend.name
-output webapiUrl string = webapiCustomUrl ?? appServiceWeb.properties.defaultHostName
+output webapiUrl string = (webapiCustomUrl != '') ? webapiCustomUrl : appServiceWeb.properties.defaultHostName
 output webapiName string = appServiceWeb.name
-output memoryPipelineUrl string = memoryPipelineCustomUrl ?? appServiceMemoryPipeline.properties.defaultHostName
+output memoryPipelineUrl string = (memoryPipelineCustomUrl != '') ? memoryPipelineCustomUrl : appServiceMemoryPipeline.properties.defaultHostName
 output memoryPipelineName string = appServiceMemoryPipeline.name
