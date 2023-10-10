@@ -88,7 +88,7 @@ az account set -s "$SUBSCRIPTION"
 echo "Getting deployment outputs..."
 DEPLOYMENT_JSON=$(az deployment group show --name $DEPLOYMENT_NAME --resource-group $RESOURCE_GROUP --output json)
 # get the webapiUrl from the deployment outputs
-eval WEB_APP_URL=$FRONTEND_CUSTOM_DOMAIN || $(echo $DEPLOYMENT_JSON | jq -r '.properties.outputs.webappUrl.value')
+eval WEB_APP_URL=$(echo $DEPLOYMENT_JSON | jq -r '.properties.outputs.webappUrl.value')
 echo "WEB_APP_URL: $WEB_APP_URL"
 eval WEB_APP_NAME=$(echo $DEPLOYMENT_JSON | jq -r '.properties.outputs.webappName.value')
 echo "WEB_APP_NAME: $WEB_APP_NAME"

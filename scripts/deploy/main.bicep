@@ -241,11 +241,13 @@ resource appServiceWebConfig 'Microsoft.Web/sites/config@2022-09-01' = {
   properties: {
     alwaysOn: false
     cors: {
-      allowedOrigins: webappCustomHost != '' ? [
+      allowedOrigins: webapiCustomUrl != '' ? [
         'https://${webapiCustomUrl}'
+        'https://${swaFrontend.properties.defaultHostname}'
         'http://localhost:3000'
         'https://localhost:3000'
       ] : [
+        'https://${swaFrontend.properties.defaultHostname}'
         'http://localhost:3000'
         'https://localhost:3000'
       ]
