@@ -17,7 +17,7 @@ import { FeatureKeys } from './redux/features/app/AppState';
 import { setActiveUserInfo, setServiceOptions } from './redux/features/app/appSlice';
 import { semanticKernelDarkTheme, semanticKernelLightTheme } from './styles';
 
-import abelLogo from './assets/abel-logo.png';
+import abelLogo from './assets/abel-type-logo.png';
 
 export const useClasses = makeStyles({
     container: {
@@ -29,7 +29,7 @@ export const useClasses = makeStyles({
     },
     header: {
         alignItems: 'center',
-        backgroundColor: '#5D6B7B',
+        backgroundColor: '#005D9F',
         color: tokens.colorNeutralForegroundOnBrand,
         display: 'flex',
         '& h1': {
@@ -162,7 +162,7 @@ const App: FC = () => {
                             <div className={classes.header}>
                                 <LogoSection />
                                 <div className={classes.cornerItemsStacked}>
-                                    <Image src={abelLogo} style={{ height: 50, marginRight: 50, marginBottom: 10 }} />
+                                    <Image src={abelLogo} style={{ marginRight: 50, marginBottom: 10 }} />
                                     <div className={classes.cornerItems}>
                                         <div className={classes.cornerItem}>
                                             <UserSettingsMenu

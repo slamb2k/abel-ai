@@ -1,8 +1,7 @@
 import { Image, makeStyles } from '@fluentui/react-components';
 import '../../index.css';
 
-import abelLogo from '../../assets/abel-logo.png';
-import abelTypeLogo from '../../assets/abel-logo.png';
+import { default as abelLogo, default as abelTypeLogo } from '../../assets/abel-logo.png';
 
 const useClasses = makeStyles({
     root: {
@@ -18,7 +17,7 @@ const useClasses = makeStyles({
     headerLogo: {
         height: '180px',
         marginTop: '0px',
-        marginLeft: '20px',
+        marginLeft: '0px',
         zIndex: '-0.5',
         },
     headerTitle: {
@@ -31,6 +30,7 @@ const useClasses = makeStyles({
         transform: 'scale(0.75)',
         fontFamily: 'IsidoraSans',
         letterSpacing: '0.1em',
+        visibility: 'hidden'
     },
     headerBoldTitle: {
         fontSize: '5em',
@@ -47,7 +47,7 @@ export const LogoSection = () => {
     return (
         <div className={classes.root}>
             <Image className={classes.headerLogo} src={abelLogo} style={{ alignSelf: 'flex-start' }} />
-            <Image className={classes.headerTitle} src={abelTypeLogo} />
+            <Image className={classes.headerTitle} src={abelTypeLogo} style={{ alignSelf: 'flex-start' }} />
         </div>
     );
 };
