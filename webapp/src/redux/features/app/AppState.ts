@@ -66,38 +66,38 @@ export const Features = {
         inactive: true,
     },
     [FeatureKeys.PluginsPlannersAndPersonas]: {
-        enabled: false,
+        enabled: true,
         label: 'Plugins & Planners & Personas',
         description: 'The Plans and Persona tabs are hidden until you turn this on',
-        inactive: true,
+        inactive: false,
     },
     [FeatureKeys.AzureContentSafety]: {
-        enabled: false,
+        enabled: true,
         label: 'Azure Content Safety',
-        inactive: true,
+        inactive: false,
     },
     [FeatureKeys.AzureCognitiveSearch]: {
-        enabled: false,
+        enabled: true,
         label: 'Azure Cognitive Search',
-        inactive: true,
+        inactive: false,
     },
     [FeatureKeys.BotAsDocs]: {
-        enabled: false,
+        enabled: true,
         label: 'Export Chat Sessions',
-        inactive: true,
+        inactive: false,
     },
     [FeatureKeys.MultiUserChat]: {
-        enabled: false,
+        enabled: true,
         label: 'Live Chat Session Sharing',
         description: 'Enable multi-user chat sessions. Not available when authorization is disabled.',
-        inactive: true,
+        inactive: false,
     },
     [FeatureKeys.RLHF]: {
         enabled: true,
         label: 'Reinforcement Learning from Human Feedback',
         description: 'Enable users to vote on model-generated responses. For demonstration purposes only.',
         // TODO: [Issue #42] Send and store feedback in backend
-        inactive: true,
+        inactive: false,
     },
 };
 

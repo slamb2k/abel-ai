@@ -59,7 +59,7 @@ const useClasses = makeStyles({
 export const PluginGallery: React.FC = () => {
     const classes = useClasses();
 
-    const { activeUserInfo, features } = useAppSelector((state: RootState) => state.app);
+    const { features } = useAppSelector((state: RootState) => state.app);
     const { plugins } = useAppSelector((state: RootState) => state.plugins);
     const [open, setOpen] = useState(false);
 
@@ -78,8 +78,7 @@ export const PluginGallery: React.FC = () => {
                     icon={<AppsAddIn24 color="white" />}
                     title="Plugins Gallery"
                     aria-label="Plugins Gallery"
-                    disabled={ !(activeUserInfo?.email === 'simon.lamb@microsoft.com') &&
-                        !features[FeatureKeys.PluginsPlannersAndPersonas].enabled }
+                    disabled={ !features[FeatureKeys.PluginsPlannersAndPersonas].enabled }
                 >
                     Plugins
                 </Button>

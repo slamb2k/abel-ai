@@ -23,44 +23,49 @@ export const useClasses = makeStyles({
     container: {
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        maxHeight: '100vh',
         width: '100%',
-        ...shorthands.overflow('hidden'),
     },
     header: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',        
         alignItems: 'center',
         backgroundColor: '#005D9F',
         color: tokens.colorNeutralForegroundOnBrand,
-        display: 'flex',
-        '& h1': {
-            paddingLeft: tokens.spacingHorizontalXL,
-            display: 'flex',
-        },
-        height: '180px',
-        justifyContent: 'space-between',
-        width: '100%',
+        height: '100%',
+        width: '100%',        
     },
-    persona: {
-        marginRight: tokens.spacingHorizontalXXL,
-    },
-    cornerItemsStacked: {
+    headerLeft: {
         display: 'flex',
         flexDirection: 'column',
-        fontSize: '2em',
+        justifyContent: 'center',        
+        alignContent: 'flex-start',
+        height: '100%',
+        flexWrap: 'nowrap',
+        ...shorthands.gap(tokens.spacingVerticalL),
     },
-    cornerItems: {
+    headerRight: {
         display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'right',
-        ...shorthands.gap(tokens.spacingHorizontalS),
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignContent: 'right',
+        flexWrap: 'nowrap',
+        borderWidth: '1px'
     },
-    cornerItem: {
+    headerCustomerLogo: {
         display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'right',
-        ...shorthands.gap(tokens.spacingHorizontalS),
-        marginRight: tokens.spacingHorizontalXXXL,
-    },
+        flexDirection: 'row-reverse',
+        justifyContent: 'flex-start',
+        alignContent: 'center',
+        objectFit: 'fill'
+        },
+    headerToolbar: {
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        justifyContent: 'flex-start',        
+        alignContent: 'center',
+    },    
 });
 
 enum AppState {
@@ -160,23 +165,21 @@ const App: FC = () => {
                     <UnauthenticatedTemplate>
                         <div className={classes.container}>
                             <div className={classes.header}>
-                                <LogoSection />
-                                <div className={classes.cornerItemsStacked}>
-                                    <Image src={abelLogo} style={{ marginRight: 50, marginBottom: 10 }} />
-                                    <div className={classes.cornerItems}>
-                                        <div className={classes.cornerItem}>
-                                            <UserSettingsMenu
-                                                setLoadingState={() => {
-                                                    setAppState(AppState.SigningOut);
-                                                }}
-                                            />
-                                        </div>
+                                <div className={classes.headerLeft}>
+                                    <LogoSection />
+                                </div>
+                                <div className={classes.headerRight}>
+                                    <div className={classes.headerCustomerLogo}>
+                                        <Image src={abelLogo} />
                                     </div>
+                                    <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
+                                        }}
+                                    />
                                 </div>
                             </div>
-                            {appState === AppState.SigningOut && <Loading text="Signing you out..." />}
-                            {appState !== AppState.SigningOut && <Login />}
                         </div>
+                        {appState === AppState.SigningOut && <Loading text="Signing you out..." />}
+                        {appState !== AppState.SigningOut && <Login />}
                     </UnauthenticatedTemplate>
                     <AuthenticatedTemplate>
                         <Chat classes={classes} appState={appState} setAppState={setAppState} />
@@ -201,27 +204,20 @@ const Chat = ({
     return (
         <div className={classes.container}>
             <div className={classes.header}>
-                <LogoSection />
-                <div className={classes.cornerItemsStacked}>
-                    <Image src={abelLogo} style={{ height: 50, marginRight: 50, marginBottom: 10 }} />
-
-                    <div>
-                        <div>
-                            {appState > AppState.SettingUserInfo && (
-                                <div className={classes.cornerItems}>
-                                    <div className={classes.cornerItem}>
-                                        <PluginGallery />
-                                        <UserSettingsMenu
-                                            setLoadingState={() => {
-                                                setAppState(AppState.SigningOut);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
+                <div className={classes.headerLeft}>
+                    <LogoSection />
+                </div>
+                {appState > AppState.SettingUserInfo && (
+                    <div className={classes.headerRight}>
+                        <Image src={abelLogo} className={classes.headerCustomerLogo}/>
+                        <div className={classes.headerToolbar}>
+                            <PluginGallery />
+                            <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
+                                        }}
+                                    />
                         </div>
                     </div>
-                </div>
+                )}
             </div>
             {appState === AppState.ProbeForBackend && (
                 <BackendProbe

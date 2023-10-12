@@ -90,7 +90,7 @@ const useClasses = makeStyles({
 
 export const ChatWindow: React.FC = () => {
     const classes = useClasses();
-    const { activeUserInfo, features } = useAppSelector((state: RootState) => state.app);
+    const { features } = useAppSelector((state: RootState) => state.app);
     const { conversations, selectedId } = useAppSelector((state: RootState) => state.conversations);
     const showShareBotMenu = features[FeatureKeys.BotAsDocs].enabled || features[FeatureKeys.MultiUserChat].enabled;
     const chatName = conversations[selectedId].title;
@@ -166,8 +166,7 @@ export const ChatWindow: React.FC = () => {
                         >
                             Documents
                         </Tab>
-                        {((activeUserInfo?.email === 'simon.lamb@microsoft.com') ||
-                            features[FeatureKeys.PluginsPlannersAndPersonas].enabled) && (
+                        {features[FeatureKeys.PluginsPlannersAndPersonas].enabled && (
                             <>
                                 <Tab
                                     data-testid="plansTab"

@@ -86,7 +86,7 @@ export const DocumentsTab: React.FC = () => {
     const chat = useChat();
     const fileHandler = useFile();
 
-    const { activeUserInfo, serviceOptions } = useAppSelector((state: RootState) => state.app);
+    const { serviceOptions } = useAppSelector((state: RootState) => state.app);
     const { conversations, selectedId } = useAppSelector((state: RootState) => state.conversations);
     const { importingDocuments } = conversations[selectedId];
 
@@ -143,7 +143,6 @@ export const DocumentsTab: React.FC = () => {
                         className={classes.uploadButton}
                         icon={<DocumentDatabaseRegular />}
                         disabled={
-                            !(activeUserInfo?.email === 'simon.lamb@microsoft.com') ||
                             (conversations[selectedId].disabled || (importingDocuments && importingDocuments.length > 0))
                         }
                         onClick={() => documentFileRef.current?.click()}
