@@ -14,8 +14,7 @@ import {
     MenuTrigger,
     Persona,
     makeStyles,
-    shorthands,
-    tokens,
+    tokens
 } from '@fluentui/react-components';
 import { Person24Filled, Settings24Regular } from '@fluentui/react-icons';
 import { AuthHelper } from '../../libs/auth/AuthHelper';
@@ -26,10 +25,11 @@ import { SettingsDialog } from './settings-dialog/SettingsDialog';
 
 export const useClasses = makeStyles({
     root: {
-        marginRight: tokens.spacingHorizontalXL,
+        marginBottom: tokens.spacingVerticalNone,
+        // height: '28px',
     },
     persona: {
-        ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingVerticalMNudge),
+        // ...shorthands.padding(tokens.spacingVerticalM, tokens.spacingHorizontalMNudge),
         overflowWrap: 'break-word',
     },
 });
@@ -61,11 +61,10 @@ export const UserSettingsMenu: FC<IUserSettingsProps> = ({ setLoadingState }) =>
                     <MenuTrigger disableButtonEnhancement>
                         {
                                 <Avatar
-                                style={{ marginRight: '25px'}}
                                 className={classes.root}
                                 key={activeUserInfo?.username}
                                 name={activeUserInfo?.username}
-                                size={28}
+                                size={36}
                                 badge={
                                     !features[FeatureKeys.SimplifiedExperience].enabled
                                         ? { status: 'available' }
@@ -105,9 +104,8 @@ export const UserSettingsMenu: FC<IUserSettingsProps> = ({ setLoadingState }) =>
                     </Menu>
                 ) : (
                     <Avatar
-                        style={{ marginRight: '25px'}}
                         className={classes.root}
-                        size={28}
+                        size={36}
                         icon={<Person24Filled />}
                         color='neutral'
                     />

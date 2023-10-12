@@ -17,54 +17,45 @@ import { FeatureKeys } from './redux/features/app/AppState';
 import { setActiveUserInfo, setServiceOptions } from './redux/features/app/appSlice';
 import { semanticKernelDarkTheme, semanticKernelLightTheme } from './styles';
 
-import abelLogo from './assets/abel-type-logo.png';
+import gavinBackground from './assets/abel-logo-pattern.png';
+import partnerLogo from './assets/ms-partner-logo.png';
+
 
 export const useClasses = makeStyles({
     container: {
         display: 'flex',
         flexDirection: 'column',
-        maxHeight: '100vh',
+        height: '100vh',
         width: '100%',
     },
     header: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between',        
-        alignItems: 'center',
-        backgroundColor: '#005D9F',
-        color: tokens.colorNeutralForegroundOnBrand,
-        height: '100%',
-        width: '100%',        
+        justifyContent: 'space-between',  
+        backgroundImage: `url(${gavinBackground})`,
+        height: '15vh'        
     },
     headerLeft: {
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',        
-        alignContent: 'flex-start',
-        height: '100%',
-        flexWrap: 'nowrap',
-        ...shorthands.gap(tokens.spacingVerticalL),
     },
     headerRight: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignContent: 'right',
-        flexWrap: 'nowrap',
-        borderWidth: '1px'
+        paddingRight: '50px',
+        ...shorthands.gap(tokens.spacingVerticalL),
     },
     headerCustomerLogo: {
         display: 'flex',
-        flexDirection: 'row-reverse',
-        justifyContent: 'flex-start',
-        alignContent: 'center',
-        objectFit: 'fill'
-        },
+        flexDirection: 'row',
+        justifyContent: 'flex-end',  
+        objectFit: 'scale-down',
+        height: '30%',
+    },
     headerToolbar: {
         display: 'flex',
-        flexDirection: 'row-reverse',
-        justifyContent: 'flex-start',        
-        alignContent: 'center',
+        flexDirection: 'row',
+        marginLeft: 'auto',
     },    
 });
 
@@ -167,15 +158,16 @@ const App: FC = () => {
                             <div className={classes.header}>
                                 <div className={classes.headerLeft}>
                                     <LogoSection />
+                                    <Image src={partnerLogo} className={classes.headerCustomerLogo}/>
                                 </div>
-                                <div className={classes.headerRight}>
+                                {/* <div className={classes.headerRight}>
                                     <div className={classes.headerCustomerLogo}>
-                                        <Image src={abelLogo} />
+                                        
                                     </div>
                                     <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
                                         }}
                                     />
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                         {appState === AppState.SigningOut && <Loading text="Signing you out..." />}
@@ -209,12 +201,15 @@ const Chat = ({
                 </div>
                 {appState > AppState.SettingUserInfo && (
                     <div className={classes.headerRight}>
-                        <Image src={abelLogo} className={classes.headerCustomerLogo}/>
+                        <div className={classes.headerCustomerLogo}>
+                            <Image src={partnerLogo} /> 
+                        </div>
                         <div className={classes.headerToolbar}>
                             <PluginGallery />
-                            <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
-                                        }}
-                                    />
+                            <UserSettingsMenu setLoadingState={() => {
+                                setAppState(AppState.SigningOut);
+                                    }}
+                                />
                         </div>
                     </div>
                 )}
