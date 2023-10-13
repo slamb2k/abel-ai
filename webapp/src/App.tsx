@@ -40,14 +40,16 @@ export const useClasses = makeStyles({
     headerRight: {
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        paddingRight: '50px',
+        justifyContent: 'space-between',  
+        paddingRight: '30px',
+        paddingTop: '20px',
+        paddingBottom: '20px',
         ...shorthands.gap(tokens.spacingVerticalXL),
     },
     headerCustomerLogo: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-end',  
+        justifyContent: 'flex-end',
         objectFit: 'scale-down',
         height: '30%',
     },
@@ -55,7 +57,15 @@ export const useClasses = makeStyles({
         display: 'flex',
         flexDirection: 'row',
         marginLeft: 'auto',
+        paddingRight: '0px',
     },    
+    headerToolbarItem: {
+        opacity: '0.7', 
+        '&:hover': {
+            cursor: 'pointer',
+            opacity: '1.0'
+        }
+    },       
 });
 
 enum AppState {
@@ -152,29 +162,35 @@ const App: FC = () => {
         >
             {AuthHelper.IsAuthAAD ? (
                 <>
+                <div className={classes.container}>                    
                     <UnauthenticatedTemplate>
-                        <div className={classes.container}>
                             <div className={classes.header}>
                                 <div className={classes.headerLeft}>
                                     <LogoSection />
-                                    <Image src={msOpenAILogo}/>
                                 </div>
-                                {/* <div className={classes.headerRight}>
+                                <div className={classes.headerRight}>
                                     <div className={classes.headerCustomerLogo}>
-                                        
+                                        <Image src={msOpenAILogo} /> 
                                     </div>
-                                    <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
-                                        }}
-                                    />
-                                </div> */}
-                            </div>
-                        </div>
+                                    <div className={classes.headerToolbar}>
+                                        <div className={classes.headerToolbarItem}>
+                                            <PluginGallery />
+                                        </div>
+                                        <div className={classes.headerToolbarItem}>
+                                            <UserSettingsMenu setLoadingState={() => {setAppState(AppState.SigningOut);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>                                
+                              </div>
                         {appState === AppState.SigningOut && <Loading text="Signing you out..." />}
                         {appState !== AppState.SigningOut && <Login />}
                     </UnauthenticatedTemplate>
                     <AuthenticatedTemplate>
                         <Chat classes={classes} appState={appState} setAppState={setAppState} />
                     </AuthenticatedTemplate>
+                    </div>
                 </>
             ) : (
                 <Chat classes={classes} appState={appState} setAppState={setAppState} />
@@ -204,11 +220,15 @@ const Chat = ({
                             <Image src={msOpenAILogo} /> 
                         </div>
                         <div className={classes.headerToolbar}>
-                            <PluginGallery />
-                            <UserSettingsMenu setLoadingState={() => {
-                                setAppState(AppState.SigningOut);
-                                    }}
-                                />
+                            <div className={classes.headerToolbarItem}>
+                                <PluginGallery />
+                            </div>
+                            <div className={classes.headerToolbarItem}>
+                                <UserSettingsMenu setLoadingState={() => {
+                                    setAppState(AppState.SigningOut);
+                                        }}
+                                    />
+                            </div>
                         </div>
                     </div>
                 )}

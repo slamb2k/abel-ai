@@ -64,13 +64,14 @@ export const UserSettingsMenu: FC<IUserSettingsProps> = ({ setLoadingState }) =>
                                 className={classes.root}
                                 key={activeUserInfo?.username}
                                 name={activeUserInfo?.username}
-                                size={48}
+                                size={36}
+                                color='brand'
                                 badge={
                                     !features[FeatureKeys.SimplifiedExperience].enabled
                                         ? { status: 'available' }
                                         : undefined
                                 }
-                                data-testid="userSettingsButton"
+                                    data-testid="userSettingsButton"
                             />
                         }
                     </MenuTrigger>
