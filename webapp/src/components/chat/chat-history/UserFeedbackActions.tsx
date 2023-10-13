@@ -42,7 +42,7 @@ export const UserFeedbackActions: React.FC<IUserFeedbackProps> = ({ messageIndex
     return (
         <div className={classes.root}>
             <Text color="gray" size={200}>
-                How well did ABEL answer your question?
+                How well did GAVIN answer your question?
             </Text>
             <Tooltip content={'Like answer'} relationship="label">
                 <Button

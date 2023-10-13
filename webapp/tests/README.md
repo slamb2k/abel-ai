@@ -1,4 +1,4 @@
-﻿# ABEL Chat Web App Scenario Tests
+﻿# GAVIN Chat Web App Scenario Tests
 
 ## How to set up the tests to run locally
 

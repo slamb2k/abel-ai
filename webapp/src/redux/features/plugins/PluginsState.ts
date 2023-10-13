@@ -89,7 +89,7 @@ export const initialState: PluginsState = {
             name: BuiltInPlugins.Jira,
             publisher: 'Atlassian',
             description:
-                'Authorize ABEL to link with Jira and retrieve specific issues by providing the issue key.',
+                'Authorize GAVIN to link with Jira and retrieve specific issues by providing the issue key.',
             enabled: false,
             authRequirements: {
                 email: true,
@@ -111,7 +111,7 @@ export const initialState: PluginsState = {
             name: BuiltInPlugins.GitHub,
             publisher: 'Microsoft',
             description:
-                'Integrate Github with ABEL, i.e., allow ABEL to list active Pull Requests for you.',
+                'Integrate Github with GAVIN, i.e., allow GAVIN to list active Pull Requests for you.',
             enabled: false,
             authRequirements: {
                 personalAccessToken: true,

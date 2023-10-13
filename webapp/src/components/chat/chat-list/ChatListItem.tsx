@@ -118,7 +118,7 @@ export const ChatListItem: FC<IChatListItemProps> = ({
             <Persona
                 
                 avatar={{
-                    name: 'ABEL',
+                    name: 'GAVIN',
                     color: 'colorful'
                 }}
                 presence={!features[FeatureKeys.SimplifiedExperience].enabled ? { status: 'available' } : undefined}

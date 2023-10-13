@@ -99,7 +99,7 @@ export const SettingsDialog: React.FC<ISettingsDialogProps> = ({ open, closeDial
                                 </AccordionHeader>
                                 <AccordionPanel>
                                     <Body1 color={tokens.colorNeutralForeground3}>
-                                        ABEL
+                                        GAVIN
                                         <br />
                                         <br />
                                         Build Name: GPS Chat Copilot

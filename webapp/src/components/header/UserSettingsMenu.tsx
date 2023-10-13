@@ -64,7 +64,7 @@ export const UserSettingsMenu: FC<IUserSettingsProps> = ({ setLoadingState }) =>
                                 className={classes.root}
                                 key={activeUserInfo?.username}
                                 name={activeUserInfo?.username}
-                                size={36}
+                                size={48}
                                 badge={
                                     !features[FeatureKeys.SimplifiedExperience].enabled
                                         ? { status: 'available' }

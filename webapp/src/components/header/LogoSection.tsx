@@ -1,7 +1,7 @@
 import { Image, makeStyles } from '@fluentui/react-components';
 import '../../index.css';
 
-import abelLogo from '../../assets/gavin-type-logo.png';
+import gavinTypeLogo from '../../assets/gavin-type-logo.png';
 
 const useClasses = makeStyles({
     root: {
@@ -24,7 +24,7 @@ export const LogoSection = () => {
 
     return (
         <div className={classes.root}>
-            <Image className={classes.headerLogo} src={abelLogo} />
+            <Image className={classes.headerLogo} src={gavinTypeLogo} />
             {/* <Image className={classes.headerTitle} src={abelTypeLogo} style={{ alignSelf: 'flex-start' }} /> */}
         </div>
     );

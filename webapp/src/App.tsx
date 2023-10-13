@@ -17,9 +17,8 @@ import { FeatureKeys } from './redux/features/app/AppState';
 import { setActiveUserInfo, setServiceOptions } from './redux/features/app/appSlice';
 import { semanticKernelDarkTheme, semanticKernelLightTheme } from './styles';
 
-import gavinBackground from './assets/abel-logo-pattern.png';
-import partnerLogo from './assets/ms-partner-logo.png';
-
+import headerBackground from './assets/header-background.png';
+import msOpenAILogo from './assets/ms-openai-logo.png';
 
 export const useClasses = makeStyles({
     container: {
@@ -32,7 +31,7 @@ export const useClasses = makeStyles({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',  
-        backgroundImage: `url(${gavinBackground})`,
+        backgroundImage: `url(${headerBackground})`,
         height: '15vh'        
     },
     headerLeft: {
@@ -43,7 +42,7 @@ export const useClasses = makeStyles({
         flexDirection: 'column',
         justifyContent: 'center',
         paddingRight: '50px',
-        ...shorthands.gap(tokens.spacingVerticalL),
+        ...shorthands.gap(tokens.spacingVerticalXL),
     },
     headerCustomerLogo: {
         display: 'flex',
@@ -158,7 +157,7 @@ const App: FC = () => {
                             <div className={classes.header}>
                                 <div className={classes.headerLeft}>
                                     <LogoSection />
-                                    <Image src={partnerLogo} className={classes.headerCustomerLogo}/>
+                                    <Image src={msOpenAILogo}/>
                                 </div>
                                 {/* <div className={classes.headerRight}>
                                     <div className={classes.headerCustomerLogo}>
@@ -202,7 +201,7 @@ const Chat = ({
                 {appState > AppState.SettingUserInfo && (
                     <div className={classes.headerRight}>
                         <div className={classes.headerCustomerLogo}>
-                            <Image src={partnerLogo} /> 
+                            <Image src={msOpenAILogo} /> 
                         </div>
                         <div className={classes.headerToolbar}>
                             <PluginGallery />
