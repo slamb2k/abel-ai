@@ -105,6 +105,7 @@ eval WEB_API_SCOPE=$(echo $WEB_API_SETTINGS | jq '.[] | select(.name=="Authentic
 
 ENV_FILE_PATH="$SCRIPT_ROOT/../../webapp/.env"
 echo "Writing environment variables to '$ENV_FILE_PATH'..."
+echo "REACT_APP_SITE_TITLE=GAVIN" >$ENV_FILE_PATH
 echo "REACT_APP_BACKEND_URI=https://$WEB_API_URL/" >$ENV_FILE_PATH
 echo "REACT_APP_AUTH_TYPE=AzureAd" >>$ENV_FILE_PATH
 # Trim any trailing slash from instance before generating authority
